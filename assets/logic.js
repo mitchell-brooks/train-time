@@ -20,7 +20,7 @@
     var trainName = $("#train-name-input").val().trim();
     var trainDest = $("#destination-input").val().trim();
     var trainStart = moment.utc($("#start-time-input").val().trim(), "HH:mm").format("HH:mm");
-    var trainFreq = parseInt($("#frequency-input").val().trim());
+    var trainFreq = $("#frequency-input").val().trim();
     
     var newTrain = {
       name: trainName,
@@ -42,21 +42,24 @@
   });
 
 database.ref().on("child_added", function(childSnapshot, prevChildKey) {
-console.log("childSnapshot: " + childSnapshot.val());
 
 var trainName = childSnapshot.val().name;
 var trainDest = childSnapshot.val().destination;
 var trainStart = childSnapshot.val().start;
 var trainFreq = childSnapshot.val().frequency;
 
+var sinceStart = (moment().diff(moment(trainStart, "HH:mm"), 'minutes'))
+console.log("trainstart: " + trainStart)
+console.log("sincestart: " + sinceStart)
 
-console.log("Child variables:" + trainName, trainDest, trainStart, trainFreq);
-
-var sinceLastTrain = (moment().diff(trainStart, 'minutes')) % trainFreq;
+var sinceLastTrain = sinceStart % trainFreq;
+console.log("since: " + sinceLastTrain)
 
 var tilNextTrain = trainFreq - sinceLastTrain;
+console.log("til: " + tilNextTrain)
 
-var nextTrain = moment().add(tilNextTrain, 'minutes').format("HH:mm")
+var nextTrain = moment().add(tilNextTrain, "minutes").format("HH:mm A");
+console.log("next: " + nextTrain)
 
 $("#trains-table > tbody").append("<tr><td>" + trainName + "</td><td>" + trainDest + "</td><td>" + trainFreq + "</td><td>" + nextTrain + "</td><td>" + tilNextTrain + "</td></tr>");
 
